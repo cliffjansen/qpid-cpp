@@ -1667,6 +1667,7 @@ void Broker::unbind(const std::string& queueName,
                                                << queue->getName() << "; it is exclusive to another session"));
     } else {
         if (exchange->unbind(queue, key, 0)) {
+            queue->unbound(exchange->getName(), key);
             if (exchange->isDurable() && queue->isDurable()) {
                 store->unbind(*exchange, *queue, key, qpid::framing::FieldTable());
             }

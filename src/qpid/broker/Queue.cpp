@@ -1206,6 +1206,11 @@ void Queue::bound(const string& exchange, const string& key,
     bindings.add(exchange, key, args);
 }
 
+void Queue::unbound(const string& exchange, const string& key)
+{
+    bindings.remove(exchange, key);
+}
+
 void Queue::unbind(ExchangeRegistry& exchanges)
 {
     bindings.unbind(exchanges, shared_from_this());

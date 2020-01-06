@@ -55,6 +55,7 @@ class QueueBindings
     }
 
     void add(const std::string& exchange, const std::string& key, const qpid::framing::FieldTable& args);
+    void remove(const std::string& exchange, const std::string& key);
     void unbind(ExchangeRegistry& exchanges, boost::shared_ptr<Queue> queue);
 
   private:

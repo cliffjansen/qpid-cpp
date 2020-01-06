@@ -34,6 +34,17 @@ void QueueBindings::add(const string& exchange, const string& key, const FieldTa
     bindings.push_back(QueueBinding(exchange, key, args));
 }
 
+void QueueBindings::remove(const string& exchange, const string& key)
+{
+    sys::Mutex::ScopedLock l(lock);
+    for (Bindings::iterator i = bindings.begin(); i != bindings.end(); i++) {
+        if (i->exchange == exchange && i->key == key) {
+            bindings.erase(i);
+            return;
+        }
+    }
+}
+
 void QueueBindings::unbind(ExchangeRegistry& exchanges, Queue::shared_ptr queue)
 {
     Bindings local;
@@ -41,10 +52,13 @@ void QueueBindings::unbind(ExchangeRegistry& exchanges, Queue::shared_ptr queue)
         sys::Mutex::ScopedLock l(lock);
         local = bindings;
     }
+    bool deleted = queue->isDeleted();  // !deleted only if called by unit test
 
     for (Bindings::iterator i = local.begin(); i != local.end(); i++) {
         Exchange::shared_ptr ex = exchanges.find(i->exchange);
-        if (ex) ex->unbind(queue, i->key, &(i->args));
+        if (ex)
+            if (ex->unbind(queue, i->key, &(i->args)) && !deleted)
+                remove(i->exchange, i->key);
     }
 }
 

@@ -596,7 +596,9 @@ void BrokerReplicator::doEventUnbind(Variant::Map& values) {
         QPID_LOG(debug, logPrefix << "Unbind event: exchange=" << exchange->getName()
                  << " queue=" << queue->getName()
                  << " key=" << key);
-        exchange->unbind(queue, key, 0);
+        if (exchange->unbind(queue, key, 0)) {
+            queue->unbound(exchange->getName(), key);
+        }
     }
 }
 
